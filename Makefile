@@ -14,6 +14,7 @@ OBJECTS = $(addprefix $(BUILD_DIR)/, $(patsubst %.c, %.o, $(notdir $(wildcard sr
 vpath %.c $(wildcard src/*) src
 
 .PHONY: all run clean
+.PRECIOUS: $(BUILD_DIR)/%.o
 .SILENT: run test
 
 all: $(BUILD_DIR)/$(BIN) $(BUILD_DIR)/$(TEST)
