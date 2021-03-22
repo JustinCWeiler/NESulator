@@ -4,6 +4,7 @@ def Settings(**kwargs):
             '-std=c99',
             '-Wall',
             '-Wextra',
+            '-Werror',
             '-Og',
             '-Iinclude',
             '-lSDL2'
