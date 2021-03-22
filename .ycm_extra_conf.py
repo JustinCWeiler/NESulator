@@ -6,7 +6,6 @@ def Settings(**kwargs):
             '-Wextra',
             '-Werror',
             '-Og',
-            '-Iinclude',
-            '-lSDL2'
+            '-Iinclude'
         ]
     }

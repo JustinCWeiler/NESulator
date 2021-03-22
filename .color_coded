@@ -4,4 +4,3 @@
 -Werror
 -Og
 -Iinclude
--lSDL2
