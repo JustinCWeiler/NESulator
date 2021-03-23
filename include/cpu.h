@@ -18,36 +18,36 @@ typedef struct {
 
 	// real external connection
 	bus_t* bus;
+
+	// fake internal state
+	uint8_t cycles_left;
 } cpu_t;
 
 cpu_t* cpu_create(bus_t* bus);
-
 void cpu_reset(cpu_t* cpu);
-
-void cpu_clock(cpu_t* cpu);
-
+void cpu_pulse(cpu_t* cpu);
 void cpu_print_state(cpu_t* cpu);
 
 // Flags
-uint8_t cpu_get_car(cpu_t* cpu);
-uint8_t cpu_get_zer(cpu_t* cpu);
-uint8_t cpu_get_ida(cpu_t* cpu);
-uint8_t cpu_get_dec(cpu_t* cpu);
-uint8_t cpu_get_ovf(cpu_t* cpu);
-uint8_t cpu_get_neg(cpu_t* cpu);
+uint8_t get_car(cpu_t* cpu);
+uint8_t get_zer(cpu_t* cpu);
+uint8_t get_ida(cpu_t* cpu);
+uint8_t get_dec(cpu_t* cpu);
+uint8_t get_ovf(cpu_t* cpu);
+uint8_t get_neg(cpu_t* cpu);
 
-void cpu_set_car(cpu_t* cpu);
-void cpu_set_zer(cpu_t* cpu);
-void cpu_set_ida(cpu_t* cpu);
-void cpu_set_dec(cpu_t* cpu);
-void cpu_set_ovf(cpu_t* cpu);
-void cpu_set_neg(cpu_t* cpu);
+void set_car(cpu_t* cpu);
+void set_zer(cpu_t* cpu);
+void set_ida(cpu_t* cpu);
+void set_dec(cpu_t* cpu);
+void set_ovf(cpu_t* cpu);
+void set_neg(cpu_t* cpu);
 
-void cpu_clr_car(cpu_t* cpu);
-void cpu_clr_zer(cpu_t* cpu);
-void cpu_clr_ida(cpu_t* cpu);
-void cpu_clr_dec(cpu_t* cpu);
-void cpu_clr_ovf(cpu_t* cpu);
-void cpu_clr_neg(cpu_t* cpu);
+void clr_car(cpu_t* cpu);
+void clr_zer(cpu_t* cpu);
+void clr_ida(cpu_t* cpu);
+void clr_dec(cpu_t* cpu);
+void clr_ovf(cpu_t* cpu);
+void clr_neg(cpu_t* cpu);
 
 #endif
