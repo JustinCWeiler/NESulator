@@ -429,12 +429,51 @@ static void tya(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)addr;
 }
 
-static inst_func inst[0x100];
+static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)cpu;
+	(void)op;
+	(void)addr;
+}
+
+static inst_func inst[0x100] = {
+	brk, ora, ill, ill, nop, ora, asl, ill, php, ora, asl, ill, nop, ora, asl, ill,
+	bpl, ora, ill, ill, nop, ora, asl, ill, clc, ora, nop, ill, nop, ora, asl, ill,
+	jsr, and, ill, ill, bit, and, rol, ill, plp, and, rol, ill, bit, and, rol, ill,
+	bmi, and, ill, ill, nop, and, rol, ill, sec, and, nop, ill, nop, and, rol, ill,
+	rti, eor, ill, ill, nop, eor, lsr, ill, pha, eor, lsr, ill, jmp, eor, lsr, ill,
+	bvc, eor, ill, ill, nop, eor, lsr, ill, cli, eor, nop, ill, nop, eor, lsr, ill,
+	rts, adc, ill, ill, nop, adc, ror, ill, pla, adc, ror, ill, jmp, adc, ror, ill,
+	bvs, adc, ill, ill, nop, adc, ror, ill, sei, adc, nop, ill, nop, adc, ror, ill,
+	nop, sta, nop, ill, sty, sta, stx, ill, dey, ill, txa, ill, sty, sta, stx, ill,
+	bcc, sta, ill, ill, sty, sta, stx, ill, tya, sta, txs, ill, ill, sta, ill, ill,
+	ldy, lda, ldx, ill, ldy, lda, ldx, ill, tay, lda, tax, ill, ldy, lda, ldx, ill,
+	bcs, lda, ill, ill, ldy, lda, ldx, ill, clv, lda, tsx, ill, ldy, lda, ldx, ill,
+	cpy, cmp, nop, ill, cpy, cmp, dec, ill, iny, cmp, dex, ill, cpy, cmp, dec, ill,
+	bne, cmp, ill, ill, nop, cmp, dec, ill, cld, cmp, nop, ill, nop, cmp, dec, ill,
+	cpx, sbc, nop, ill, cpx, sbc, inc, ill, inx, sbc, nop, ill, cpx, sbc, inc, ill,
+	beq, sbc, ill, ill, nop, sbc, inc, ill, sed, sbc, nop, ill, nop, sbc, inc, ill
+};
 
 
 // ---------- CYCLE COUNTS ----------
-#define HIGH (1<<8)
-static uint8_t cycles[0x100];
+static uint8_t cycles[0x100] = {
+	7, 6, 1, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+	6, 6, 1, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+	6, 6, 1, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6,
+	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+	6, 6, 1, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6,
+	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+	2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+	2, 6, 1, 6, 4, 4, 4, 4, 2, 5, 2, 5, 5, 5, 5, 5,
+	2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+	2, 5, 1, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4,
+	2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+	2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7
+};
 
 
 // ---------- FUNCTIONS ----------
