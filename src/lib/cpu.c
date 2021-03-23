@@ -35,7 +35,7 @@ void cpu_pulse(cpu_t* cpu) {
 		uint16_t addr = get_addr(cpu, opcode);
 		execute_instruction(cpu, opcode, addr);
 
-		cpu->cycles_left += get_base_cycles(opcode, addr);
+		cpu->cycles_left += get_base_cycles(opcode);
 	}
 	cpu->cycles_left--;
 }

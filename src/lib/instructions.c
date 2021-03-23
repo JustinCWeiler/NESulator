@@ -37,7 +37,7 @@ static uint16_t izy(cpu_t* cpu) {
 	return addr1;
 }
 
-static uint16_t abs(cpu_t* cpu) {
+static uint16_t abb(cpu_t* cpu) {
 	uint8_t lo = cpu->bus->read(cpu->reg.PC++);
 	uint8_t hi = cpu->bus->read(cpu->reg.PC++);
 
@@ -45,7 +45,7 @@ static uint16_t abs(cpu_t* cpu) {
 }
 
 static uint16_t abx(cpu_t* cpu) {
-	uint16_t addr0 = abs(cpu);
+	uint16_t addr0 = abb(cpu);
 	uint16_t addr1 = addr0 + cpu->reg.X;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
@@ -55,7 +55,7 @@ static uint16_t abx(cpu_t* cpu) {
 }
 
 static uint16_t aby(cpu_t* cpu) {
-	uint16_t addr0 = abs(cpu);
+	uint16_t addr0 = abb(cpu);
 	uint16_t addr1 = addr0 + cpu->reg.Y;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
@@ -65,29 +65,29 @@ static uint16_t aby(cpu_t* cpu) {
 }
 
 static uint16_t ind(cpu_t* cpu) {
-	return cpu->bus->read(abs(cpu));
+	return cpu->bus->read(abb(cpu));
 }
 
 static uint16_t rel(cpu_t* cpu) {
-	return abs(cpu);
+	return abb(cpu);
 }
 
 static addr_func addr[0x100] = {
-	imp, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	imp, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpx, zpx, imp, aby, imp, aby, abx, abx, abx, abx,
-	abs, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	abb, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpx, zpx, imp, aby, imp, aby, abx, abx, abx, abx,
-	imp, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	imp, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpx, zpx, imp, aby, imp, aby, abx, abx, abx, abx,
-	imp, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, ind, abs, abs, abs,
+	imp, izx, imp, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, ind, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpx, zpx, imp, aby, imp, aby, abx, abx, abx, abx,
-	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpy, zpy, imp, aby, imp, aby, abx, abx, aby, aby,
-	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpy, zpy, imp, aby, imp, aby, abx, abx, aby, aby,
-	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpx, zpx, imp, aby, imp, aby, abx, abx, abx, abx,
-	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abs, abs, abs, abs,
+	imm, izx, imm, izx, zpp, zpp, zpp, zpp, imp, imm, imp, imm, abb, abb, abb, abb,
 	rel, izy, imp, izy, zpx, zpx, zpx, zpx, imp, aby, imp, aby, abx, abx, abx, abx,
 };
 
