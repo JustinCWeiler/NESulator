@@ -4,6 +4,8 @@
 #include "cpu.h"
 #include <stdint.h>
 
+#define STACK_OFFSET 0x100
+
 typedef uint16_t (*addr_func)(cpu_t*);
 typedef void (*inst_func)(cpu_t*, uint8_t, uint16_t);
 

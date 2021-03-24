@@ -4,6 +4,11 @@
 #include "bus.h"
 #include <stdint.h>
 
+#define NMI_VECTOR 0xFFFA
+#define RESET_VECTOR 0xFFFC
+#define IRQ_VECTOR 0xFFFE
+#define BRK_VECTOR 0xFFFE
+
 typedef struct {
 	uint8_t A;	// accumulator
 	uint8_t X, Y;	// index registers

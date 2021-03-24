@@ -94,6 +94,17 @@ static addr_func addrs[0x100] = {
 
 
 // ---------- INSTRUCTIONS ----------
+
+#define PUSH(val) push(cpu, val)
+static inline void push(cpu_t* cpu, uint8_t val) {
+	cpu->bus->write(STACK_OFFSET + (cpu->reg.S--), val);
+}
+
+#define POP() pop(cpu)
+static inline uint8_t pop(cpu_t* cpu) {
+	return cpu->bus->read(STACK_OFFSET + (++cpu->reg.S));
+}
+
 static void adc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
@@ -176,18 +187,36 @@ static void bcc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_car(cpu) == 0) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void bcs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_car(cpu) == 1) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void beq(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_zer(cpu) == 1) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void bit(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -200,36 +229,84 @@ static void bmi(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_neg(cpu) == 1) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void bne(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_zer(cpu) == 0) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void bpl(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_neg(cpu) == 0) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void brk(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t pc_hi = cpu->reg.PC >> 8;
+	uint8_t pc_lo = cpu->reg.PC & 0xf;
+
+	// push values to stack
+	PUSH(pc_hi);
+	PUSH(pc_lo);
+	PUSH(cpu->reg.P);
+
+	// set flags
+	set_brk(cpu);
+	set_ida(cpu);
+
+	// change PC
+	pc_lo = cpu->bus->read(BRK_VECTOR);
+	pc_hi = cpu->bus->read(BRK_VECTOR + 1);
+
+	cpu->reg.PC = (pc_hi << 8) | pc_lo;
 }
 
 static void bvc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_ovf(cpu) == 0) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void bvs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	if (get_ovf(cpu) == 1) {
+		// must be signed
+		int8_t val = cpu->bus->read(addr);
+		cpu->reg.PC += val;
+	}
 }
 
 static void clc(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -459,30 +536,79 @@ static void jmp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	cpu->reg.PC = addr;
 }
 
 static void jsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t pc_hi = cpu->reg.PC >> 8;
+	uint8_t pc_lo = cpu->reg.PC & 0xf;
+
+	PUSH(pc_hi);
+	PUSH(pc_lo);
+
+	cpu->reg.PC = addr;
 }
 
 static void lda(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->bus->read(addr);
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.A = val;
 }
 
 static void ldx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->bus->read(addr);
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.X = val;
 }
 
 static void ldy(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->bus->read(addr);
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.Y = val;
 }
 
 static void lsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -546,24 +672,43 @@ static void pha(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	PUSH(cpu->reg.A);
 }
 
 static void php(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	PUSH(cpu->reg.P);
 }
 
 static void pla(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = POP();
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.A = val;
 }
 
 static void plp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	cpu->reg.P = POP();
 }
 
 static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -632,12 +777,23 @@ static void rti(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	cpu->reg.P = POP();
+	uint8_t pc_lo = POP();
+	uint8_t pc_hi = POP();
+
+	cpu->reg.PC = (pc_hi << 8) | pc_lo;
 }
 
 static void rts(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t pc_lo = POP();
+	uint8_t pc_hi = POP();
+
+	cpu->reg.PC = (pc_hi << 8) | pc_lo;
 }
 
 static void sbc(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -695,54 +851,138 @@ static void sta(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	cpu->bus->write(addr, cpu->reg.A);
 }
 
 static void stx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	cpu->bus->write(addr, cpu->reg.X);
 }
 
 static void sty(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	cpu->bus->write(addr, cpu->reg.Y);
 }
 
 static void tax(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->reg.A;
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.X = val;
 }
 
 static void tay(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->reg.A;
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.Y = val;
 }
 
 static void tsx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->reg.S;
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.X = val;
 }
 
 static void txa(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->reg.X;
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.A = val;
 }
 
 static void txs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->reg.X;
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.S = val;
 }
 
 static void tya(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->reg.Y;
+
+	// N, Z
+	clr_neg(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (!val)
+		set_zer(cpu);
+
+	cpu->reg.A = val;
 }
 
 static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {
