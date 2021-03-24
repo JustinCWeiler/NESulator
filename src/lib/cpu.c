@@ -44,6 +44,7 @@ uint8_t get_car(cpu_t* cpu) { return (cpu->reg.P >> 0) & 1; }
 uint8_t get_zer(cpu_t* cpu) { return (cpu->reg.P >> 1) & 1; }
 uint8_t get_ida(cpu_t* cpu) { return (cpu->reg.P >> 2) & 1; }
 uint8_t get_dec(cpu_t* cpu) { return (cpu->reg.P >> 3) & 1; }
+uint8_t get_brk(cpu_t* cpu) { return (cpu->reg.P >> 4) & 1; }
 uint8_t get_ovf(cpu_t* cpu) { return (cpu->reg.P >> 6) & 1; }
 uint8_t get_neg(cpu_t* cpu) { return (cpu->reg.P >> 7) & 1; }
 
@@ -51,6 +52,7 @@ void set_car(cpu_t* cpu) { cpu->reg.P |= (1 << 0); }
 void set_zer(cpu_t* cpu) { cpu->reg.P |= (1 << 1); }
 void set_ida(cpu_t* cpu) { cpu->reg.P |= (1 << 2); }
 void set_dec(cpu_t* cpu) { cpu->reg.P |= (1 << 3); }
+void set_brk(cpu_t* cpu) { cpu->reg.P |= (1 << 4); }
 void set_ovf(cpu_t* cpu) { cpu->reg.P |= (1 << 6); }
 void set_neg(cpu_t* cpu) { cpu->reg.P |= (1 << 7); }
 
@@ -58,6 +60,7 @@ void clr_car(cpu_t* cpu) { cpu->reg.P &= ~(1 << 0); }
 void clr_zer(cpu_t* cpu) { cpu->reg.P &= ~(1 << 1); }
 void clr_ida(cpu_t* cpu) { cpu->reg.P &= ~(1 << 2); }
 void clr_dec(cpu_t* cpu) { cpu->reg.P &= ~(1 << 3); }
+void clr_brk(cpu_t* cpu) { cpu->reg.P &= ~(1 << 4); }
 void clr_ovf(cpu_t* cpu) { cpu->reg.P &= ~(1 << 6); }
 void clr_neg(cpu_t* cpu) { cpu->reg.P &= ~(1 << 7); }
 
@@ -74,6 +77,7 @@ void cpu_print_state(cpu_t* cpu) {
 	printf("zer: %d\n", get_zer(cpu));
 	printf("ida: %d\n", get_ida(cpu));
 	printf("dec: %d\n", get_dec(cpu));
+	printf("brk: %d\n", get_brk(cpu));
 	printf("ovf: %d\n", get_ovf(cpu));
 	printf("neg: %d\n", get_neg(cpu));
 	printf("-------------------------------\n");

@@ -33,6 +33,7 @@ uint8_t get_car(cpu_t* cpu);
 uint8_t get_zer(cpu_t* cpu);
 uint8_t get_ida(cpu_t* cpu);
 uint8_t get_dec(cpu_t* cpu);
+uint8_t get_brk(cpu_t* cpu);
 uint8_t get_ovf(cpu_t* cpu);
 uint8_t get_neg(cpu_t* cpu);
 
@@ -40,6 +41,7 @@ void set_car(cpu_t* cpu);
 void set_zer(cpu_t* cpu);
 void set_ida(cpu_t* cpu);
 void set_dec(cpu_t* cpu);
+void set_brk(cpu_t* cpu);
 void set_ovf(cpu_t* cpu);
 void set_neg(cpu_t* cpu);
 
@@ -47,6 +49,7 @@ void clr_car(cpu_t* cpu);
 void clr_zer(cpu_t* cpu);
 void clr_ida(cpu_t* cpu);
 void clr_dec(cpu_t* cpu);
+void clr_brk(cpu_t* cpu);
 void clr_ovf(cpu_t* cpu);
 void clr_neg(cpu_t* cpu);
 
