@@ -96,6 +96,8 @@ static addr_func addrs[0x100] = {
 // ---------- INSTRUCTIONS ----------
 static void adc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t oldA = cpu->reg.A;
@@ -121,6 +123,8 @@ static void adc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void and(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t newA = cpu->reg.A & val;
@@ -138,6 +142,10 @@ static void and(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static void asl(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
 	uint8_t val;
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
@@ -258,6 +266,8 @@ static void clv(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void cmp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t res = cpu->reg.A - val;
@@ -277,6 +287,8 @@ static void cmp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void cpx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t res = cpu->reg.X - val;
@@ -296,6 +308,8 @@ static void cpx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void cpy(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t res = cpu->reg.Y - val;
@@ -315,6 +329,8 @@ static void cpy(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void dec(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	val--;
@@ -333,6 +349,7 @@ static void dec(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void dex(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
 	(void)addr;
 
 	cpu->reg.X--;
@@ -349,6 +366,7 @@ static void dex(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void dey(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
 	(void)addr;
 
 	cpu->reg.Y--;
@@ -365,6 +383,8 @@ static void dey(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void eor(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t newA = cpu->reg.A ^ val;
@@ -383,6 +403,8 @@ static void eor(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void inc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	val++;
@@ -401,6 +423,7 @@ static void inc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void inx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
 	(void)addr;
 
 	cpu->reg.X--;
@@ -417,6 +440,7 @@ static void inx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void iny(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
 	(void)addr;
 
 	cpu->reg.Y--;
@@ -462,6 +486,10 @@ static void ldy(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static void lsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
 	uint8_t val;
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
@@ -496,6 +524,8 @@ static void nop(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void ora(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = cpu->bus->read(addr);
 	uint8_t newA = cpu->reg.A | val;
@@ -537,6 +567,10 @@ static void plp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
 	uint8_t val;
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
@@ -564,6 +598,10 @@ static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static void ror(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
 	uint8_t val;
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
@@ -604,6 +642,8 @@ static void rts(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 static void sbc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
+	(void)cpu;
+	(void)addr;
 
 	uint8_t val = ~cpu->bus->read(addr);
 	uint8_t oldA = cpu->reg.A;
