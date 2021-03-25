@@ -22,8 +22,8 @@ void cpu_reset(cpu_t* cpu) {
 	cpu->reg.P = 0x34;
 	cpu->reg.S = 0xfd;
 
-	uint8_t lo = cpu->bus->read(0xFFFC);
-	uint8_t hi = cpu->bus->read(0xFFFD);
+	uint8_t lo = cpu->bus->read(RESET_VECTOR_LO);
+	uint8_t hi = cpu->bus->read(RESET_VECTOR_HI);
 
 	cpu->reg.PC = (hi << 8) | lo;
 }

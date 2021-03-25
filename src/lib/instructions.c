@@ -279,8 +279,8 @@ static void brk(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	set_ida(cpu);
 
 	// change PC
-	pc_lo = cpu->bus->read(BRK_VECTOR);
-	pc_hi = cpu->bus->read(BRK_VECTOR + 1);
+	pc_lo = cpu->bus->read(BRK_VECTOR_LO);
+	pc_hi = cpu->bus->read(BRK_VECTOR_HI);
 
 	cpu->reg.PC = (pc_hi << 8) | pc_lo;
 }

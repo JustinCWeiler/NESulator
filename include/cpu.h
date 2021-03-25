@@ -4,10 +4,18 @@
 #include "bus.h"
 #include <stdint.h>
 
-#define NMI_VECTOR 0xFFFA
-#define RESET_VECTOR 0xFFFC
-#define IRQ_VECTOR 0xFFFE
-#define BRK_VECTOR 0xFFFE
+#define NMI_VECTOR       0xFFFA
+#define NMI_VECTOR_LO    0xFFFA
+#define NMI_VECTOR_HI    0xFFFB
+#define RESET_VECTOR     0xFFFC
+#define RESET_VECTOR_LO  0xFFFC
+#define RESET_VECTOR_HI  0xFFFD
+#define IRQ_VECTOR       0xFFFE
+#define IRQ_VECTOR_LO    0xFFFE
+#define IRQ_VECTOR_HI    0xFFFF
+#define BRK_VECTOR       0xFFFE
+#define BRK_VECTOR_LO    0xFFFE
+#define BRK_VECTOR_HI    0xFFFF
 
 typedef struct {
 	uint8_t A;	// accumulator
