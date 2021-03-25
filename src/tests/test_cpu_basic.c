@@ -113,8 +113,8 @@ void test_alt_mult_prg(cpu_t* cpu) {
 }
 
 int main(void) {
-	bus_t bus = { read, write };
-	cpu_t* cpu = cpu_create(&bus);
+	bus_t* bus = bus_create(read, write);
+	cpu_t* cpu = cpu_create(bus);
 
 	memory[RESET_VECTOR_LO] = START_LO;
 	memory[RESET_VECTOR_HI] = START_HI;

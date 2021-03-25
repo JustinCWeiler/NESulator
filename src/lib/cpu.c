@@ -8,7 +8,6 @@ cpu_t* cpu_create(bus_t* bus) {
 	cpu_t* cpu = malloc(sizeof(cpu_t));
 
 	cpu->bus = bus;
-	cpu->cycles_left = 0;
 
 	cpu_reset(cpu);
 
@@ -26,6 +25,8 @@ void cpu_reset(cpu_t* cpu) {
 	uint8_t hi = cpu->bus->read(RESET_VECTOR_HI);
 
 	cpu->reg.PC = (hi << 8) | lo;
+
+	cpu->cycles_left = 0;
 }
 
 void cpu_pulse(cpu_t* cpu) {

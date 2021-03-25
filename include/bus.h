@@ -11,6 +11,6 @@ typedef struct {
 	write_func write;
 } bus_t;
 
-bus_t* create_bus(read_func read, write_func write);
+bus_t* bus_create(read_func read, write_func write);
 
 #endif
