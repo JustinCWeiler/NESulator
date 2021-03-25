@@ -12,5 +12,7 @@ typedef struct {
 } bus_t;
 
 bus_t* bus_create(read_func read, write_func write);
+uint8_t bus_read(bus_t* bus, uint16_t addr);
+void bus_write(bus_t* bus, uint16_t addr, uint8_t val);
 
 #endif

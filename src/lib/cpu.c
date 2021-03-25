@@ -31,7 +31,7 @@ void cpu_reset(cpu_t* cpu) {
 
 void cpu_pulse(cpu_t* cpu) {
 	if (cpu->cycles_left == 0) {
-		uint8_t opcode = cpu->bus->read(cpu->reg.PC++);
+		uint8_t opcode = bus_read(cpu->bus, cpu->reg.PC++);
 
 		uint16_t addr = get_addr(cpu, opcode);
 		execute_instruction(cpu, opcode, addr);

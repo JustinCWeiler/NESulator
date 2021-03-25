@@ -1,5 +1,6 @@
 #include "instructions.h"
 #include "cpu.h"
+#include "bus.h"
 #include <stdint.h>
 
 // ---------- ADDRESSING MODES ----------
@@ -13,7 +14,7 @@ static uint16_t imm(cpu_t* cpu) {
 }
 
 static uint16_t zpp(cpu_t* cpu) {
-	return cpu->bus->read(cpu->reg.PC++);
+	return bus_read(cpu->bus, cpu->reg.PC++);
 }
 
 static uint16_t zpx(cpu_t* cpu) {
@@ -25,11 +26,11 @@ static uint16_t zpy(cpu_t* cpu) {
 }
 
 static uint16_t izx(cpu_t* cpu) {
-	return cpu->bus->read(zpx(cpu));
+	return bus_read(cpu->bus, zpx(cpu));
 }
 
 static uint16_t izy(cpu_t* cpu) {
-	uint16_t addr0 = cpu->bus->read(zpp(cpu));
+	uint16_t addr0 = bus_read(cpu->bus, zpp(cpu));
 	uint16_t addr1 = addr0 + cpu->reg.Y;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
@@ -39,8 +40,8 @@ static uint16_t izy(cpu_t* cpu) {
 }
 
 static uint16_t abb(cpu_t* cpu) {
-	uint8_t lo = cpu->bus->read(cpu->reg.PC++);
-	uint8_t hi = cpu->bus->read(cpu->reg.PC++);
+	uint8_t lo = bus_read(cpu->bus, cpu->reg.PC++);
+	uint8_t hi = bus_read(cpu->bus, cpu->reg.PC++);
 
 	return (hi << 8) | lo;
 }
@@ -66,7 +67,7 @@ static uint16_t aby(cpu_t* cpu) {
 }
 
 static uint16_t ind(cpu_t* cpu) {
-	return cpu->bus->read(abb(cpu));
+	return bus_read(cpu->bus, abb(cpu));
 }
 
 static uint16_t rel(cpu_t* cpu) {
@@ -97,12 +98,12 @@ static addr_func addrs[0x100] = {
 
 #define PUSH(val) push(cpu, val)
 static inline void push(cpu_t* cpu, uint8_t val) {
-	cpu->bus->write(STACK_OFFSET + (cpu->reg.S--), val);
+	bus_write(cpu->bus, STACK_OFFSET + (cpu->reg.S--), val);
 }
 
 #define POP() pop(cpu)
 static inline uint8_t pop(cpu_t* cpu) {
-	return cpu->bus->read(STACK_OFFSET + (++cpu->reg.S));
+	return bus_read(cpu->bus, STACK_OFFSET + (++cpu->reg.S));
 }
 
 static void adc(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -110,7 +111,7 @@ static void adc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t oldA = cpu->reg.A;
 	uint8_t newA = oldA + get_car(cpu) + val;
 
@@ -137,7 +138,7 @@ static void and(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t newA = cpu->reg.A & val;
 
 	// N, Z
@@ -161,7 +162,7 @@ static void asl(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
 	else
-		val = cpu->bus->read(addr);
+		val = bus_read(cpu->bus, addr);
 
 	uint8_t newval = val << 1;
 
@@ -180,7 +181,7 @@ static void asl(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		cpu->reg.A = newval;
 	else
-		cpu->bus->write(addr, newval);
+		bus_write(cpu->bus, addr, newval);
 }
 
 static void bcc(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -190,7 +191,7 @@ static void bcc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_car(cpu) == 0) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -203,7 +204,7 @@ static void bcs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_car(cpu) == 1) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -216,7 +217,7 @@ static void beq(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_zer(cpu) == 1) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -227,7 +228,7 @@ static void bit(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 
 	// N, V, Z
 	clr_neg(cpu);
@@ -249,7 +250,7 @@ static void bmi(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_neg(cpu) == 1) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -262,7 +263,7 @@ static void bne(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_zer(cpu) == 0) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -275,7 +276,7 @@ static void bpl(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_neg(cpu) == 0) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -299,8 +300,8 @@ static void brk(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	set_ida(cpu);
 
 	// change PC
-	pc_lo = cpu->bus->read(BRK_VECTOR_LO);
-	pc_hi = cpu->bus->read(BRK_VECTOR_HI);
+	pc_lo = bus_read(cpu->bus, BRK_VECTOR_LO);
+	pc_hi = bus_read(cpu->bus, BRK_VECTOR_HI);
 
 	cpu->reg.PC = (pc_hi << 8) | pc_lo;
 }
@@ -312,7 +313,7 @@ static void bvc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_ovf(cpu) == 0) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -325,7 +326,7 @@ static void bvs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	if (get_ovf(cpu) == 1) {
 		// must be signed
-		int8_t val = cpu->bus->read(addr);
+		int8_t val = bus_read(cpu->bus, addr);
 		cpu->reg.PC += val;
 		cpu->cycles_left++;
 	}
@@ -368,7 +369,7 @@ static void cmp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t res = cpu->reg.A - val;
 
 	// N, Z, C
@@ -389,7 +390,7 @@ static void cpx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t res = cpu->reg.X - val;
 
 	// N, Z, C
@@ -410,7 +411,7 @@ static void cpy(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t res = cpu->reg.Y - val;
 
 	// N, Z, C
@@ -431,7 +432,7 @@ static void dec(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	val--;
 
 	// N, Z
@@ -443,7 +444,7 @@ static void dec(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (!val)
 		set_zer(cpu);
 
-	cpu->bus->write(addr, val);
+	bus_write(cpu->bus, addr, val);
 }
 
 static void dex(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -485,7 +486,7 @@ static void eor(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t newA = cpu->reg.A ^ val;
 
 	// N, Z
@@ -505,7 +506,7 @@ static void inc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	val++;
 
 	// N, Z
@@ -517,7 +518,7 @@ static void inc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (!val)
 		set_zer(cpu);
 
-	cpu->bus->write(addr, val);
+	bus_write(cpu->bus, addr, val);
 }
 
 static void inx(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -581,7 +582,7 @@ static void lda(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 
 	// N, Z
 	clr_neg(cpu);
@@ -600,7 +601,7 @@ static void ldx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 
 	// N, Z
 	clr_neg(cpu);
@@ -619,7 +620,7 @@ static void ldy(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 
 	// N, Z
 	clr_neg(cpu);
@@ -642,7 +643,7 @@ static void lsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
 	else
-		val = cpu->bus->read(addr);
+		val = bus_read(cpu->bus, addr);
 
 	uint8_t newval = val >> 1;
 
@@ -661,7 +662,7 @@ static void lsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		cpu->reg.A = newval;
 	else
-		cpu->bus->write(addr, newval);
+		bus_write(cpu->bus, addr, newval);
 }
 
 static void nop(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -675,7 +676,7 @@ static void ora(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = cpu->bus->read(addr);
+	uint8_t val = bus_read(cpu->bus, addr);
 	uint8_t newA = cpu->reg.A | val;
 
 	// N, Z
@@ -742,7 +743,7 @@ static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
 	else
-		val = cpu->bus->read(addr);
+		val = bus_read(cpu->bus, addr);
 
 	uint8_t newval = (val << 1) + get_car(cpu);
 
@@ -761,7 +762,7 @@ static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		cpu->reg.A = newval;
 	else
-		cpu->bus->write(addr, newval);
+		bus_write(cpu->bus, addr, newval);
 }
 
 static void ror(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -773,7 +774,7 @@ static void ror(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		val = cpu->reg.A;
 	else
-		val = cpu->bus->read(addr);
+		val = bus_read(cpu->bus, addr);
 
 	uint8_t newval = (val >> 1) + (get_car(cpu) << 7);
 
@@ -792,7 +793,7 @@ static void ror(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (addrs[op] == imp)
 		cpu->reg.A = newval;
 	else
-		cpu->bus->write(addr, newval);
+		bus_write(cpu->bus, addr, newval);
 }
 
 static void rti(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -823,7 +824,7 @@ static void sbc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = ~cpu->bus->read(addr);
+	uint8_t val = ~bus_read(cpu->bus, addr);
 	uint8_t oldA = cpu->reg.A;
 	uint8_t newA = oldA + get_car(cpu) + val;
 
@@ -874,7 +875,7 @@ static void sta(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->bus->write(addr, cpu->reg.A);
+	bus_write(cpu->bus, addr, cpu->reg.A);
 }
 
 static void stx(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -882,7 +883,7 @@ static void stx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->bus->write(addr, cpu->reg.X);
+	bus_write(cpu->bus, addr, cpu->reg.X);
 }
 
 static void sty(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -890,7 +891,7 @@ static void sty(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->bus->write(addr, cpu->reg.Y);
+	bus_write(cpu->bus, addr, cpu->reg.Y);
 }
 
 static void tax(cpu_t* cpu, uint8_t op, uint16_t addr) {
