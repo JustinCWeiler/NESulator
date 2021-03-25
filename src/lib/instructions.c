@@ -70,7 +70,7 @@ static uint16_t ind(cpu_t* cpu) {
 }
 
 static uint16_t rel(cpu_t* cpu) {
-	return abb(cpu);
+	return imm(cpu);
 }
 
 static addr_func addrs[0x100] = {
@@ -192,6 +192,7 @@ static void bcc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -204,6 +205,7 @@ static void bcs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -216,6 +218,7 @@ static void beq(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -234,6 +237,7 @@ static void bmi(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -246,6 +250,7 @@ static void bne(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -258,6 +263,7 @@ static void bpl(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -294,6 +300,7 @@ static void bvc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 
@@ -306,6 +313,7 @@ static void bvs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		// must be signed
 		int8_t val = cpu->bus->read(addr);
 		cpu->reg.PC += val;
+		cpu->cycles_left++;
 	}
 }
 

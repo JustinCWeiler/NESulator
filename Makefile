@@ -1,5 +1,5 @@
 BIN = main
-TEST = test
+TEST = test_cpu_basic
 BUILD_DIR = build
 
 CC = gcc
@@ -19,8 +19,10 @@ vpath %.c $(wildcard src/*) src
 
 all: $(BUILD_DIR)/$(BIN) $(BUILD_DIR)/$(TEST)
 run: $(BUILD_DIR)/$(BIN)
+	echo
 	$<
 test: $(BUILD_DIR)/$(TEST)
+	echo
 	$<
 clean: $(BUILD_DIR)
 	rm -r $(BUILD_DIR)
