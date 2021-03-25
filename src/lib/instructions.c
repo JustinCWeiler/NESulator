@@ -226,6 +226,20 @@ static void bit(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
 	(void)addr;
+
+	uint8_t val = cpu->bus->read(addr);
+
+	// N, V, Z
+	clr_neg(cpu);
+	clr_ovf(cpu);
+	clr_zer(cpu);
+
+	if (val & 0x80)
+		set_neg(cpu);
+	if (val & 0x40)
+		set_ovf(cpu);
+	if (!(cpu->reg.A & val))
+		set_zer(cpu);
 }
 
 static void bmi(cpu_t* cpu, uint8_t op, uint16_t addr) {
