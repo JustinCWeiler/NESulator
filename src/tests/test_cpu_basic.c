@@ -10,8 +10,8 @@
 
 static uint8_t memory[0x10000];
 
-static uint8_t read(uint16_t addr, void* data) { return memory[addr]; }
-static void write(uint16_t addr, uint8_t val, void* data) { memory[addr] = val; }
+static uint8_t read(uint16_t addr, void* data) { return ((uint8_t*)data)[addr]; }
+static void write(uint16_t addr, uint8_t val, void* data) { ((uint8_t*)data)[addr] = val; }
 
 static const unsigned char ADD_PRG[] = {
 	0xA9, 0x69, 0x18, 0x69, 0x42, 0x8D, 0x00, 0x00,
@@ -113,7 +113,7 @@ void test_alt_mult_prg(cpu_t* cpu) {
 }
 
 int main(void) {
-	bus_t* bus = bus_create(read, write, NULL);
+	bus_t* bus = bus_create(read, write, memory);
 	cpu_t* cpu = cpu_create(bus);
 
 	memory[RESET_VECTOR_LO] = START_LO;
