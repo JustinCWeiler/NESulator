@@ -3,7 +3,7 @@ TEST = test_cpu_basic
 BUILD_DIR = build
 
 CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Werror -Og -Iinclude
+CFLAGS = -std=c99 -Wall -Wextra -Wno-error=unused-parameter -Werror -Og -Iinclude
 LDFLAGS = 
 LDLIBS = -lSDL2
 

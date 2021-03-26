@@ -10,8 +10,8 @@
 
 static uint8_t memory[0x10000];
 
-static uint8_t read(uint16_t addr) { return memory[addr]; }
-static void write(uint16_t addr, uint8_t val) { memory[addr] = val; }
+static uint8_t read(uint16_t addr, void* data) { return memory[addr]; }
+static void write(uint16_t addr, uint8_t val, void* data) { memory[addr] = val; }
 
 static const unsigned char ADD_PRG[] = {
 	0xA9, 0x69, 0x18, 0x69, 0x42, 0x8D, 0x00, 0x00,
@@ -50,7 +50,7 @@ void test_add_prg(cpu_t* cpu) {
 	memcpy(&memory[START], ADD_PRG, sizeof(ADD_PRG));
 
 	unsigned int count = 0;
-	while (cpu->bus->read(cpu->reg.PC) != 0x02 || cpu->cycles_left != 0) {
+	while (bus_read(cpu->bus, cpu->reg.PC) != 0x02 || cpu->cycles_left != 0) {
 		cpu_pulse(cpu);
 		count++;
 	}
@@ -73,7 +73,7 @@ void test_mult_prg(cpu_t* cpu) {
 	memcpy(&memory[START], MULT_PRG, sizeof(MULT_PRG));
 
 	unsigned int count = 0;
-	while (cpu->bus->read(cpu->reg.PC) != 0x02 || cpu->cycles_left != 0) {
+	while (bus_read(cpu->bus, cpu->reg.PC) != 0x02 || cpu->cycles_left != 0) {
 		cpu_pulse(cpu);
 		count++;
 	}
@@ -96,7 +96,7 @@ void test_alt_mult_prg(cpu_t* cpu) {
 	memcpy(&memory[START], ALT_MULT_PRG, sizeof(ALT_MULT_PRG));
 
 	unsigned int count = 0;
-	while (cpu->bus->read(cpu->reg.PC) != 0x02 || cpu->cycles_left != 0) {
+	while (bus_read(cpu->bus, cpu->reg.PC) != 0x02 || cpu->cycles_left != 0) {
 		cpu_pulse(cpu);
 		count++;
 	}
@@ -113,7 +113,7 @@ void test_alt_mult_prg(cpu_t* cpu) {
 }
 
 int main(void) {
-	bus_t* bus = bus_create(read, write);
+	bus_t* bus = bus_create(read, write, NULL);
 	cpu_t* cpu = cpu_create(bus);
 
 	memory[RESET_VECTOR_LO] = START_LO;
@@ -124,7 +124,7 @@ int main(void) {
 	test_reset_cpu(cpu);
 	test_add_prg(cpu);
 	test_mult_prg(cpu);
-	//test_alt_mult_prg(cpu);
+	test_alt_mult_prg(cpu);
 
 	printf("END TESTS\n\n");
 
