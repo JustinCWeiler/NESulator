@@ -10,8 +10,8 @@
 
 static uint8_t memory[0x10000];
 
-static uint8_t read(uint16_t addr, void* data) { return ((uint8_t*)data)[addr]; }
-static void write(uint16_t addr, uint8_t val, void* data) { ((uint8_t*)data)[addr] = val; }
+static uint8_t read(uint16_t addr, void* mmap) { return ((uint8_t*)mmap)[addr]; }
+static void write(uint16_t addr, uint8_t val, void* mmap) { ((uint8_t*)mmap)[addr] = val; }
 
 static const unsigned char ADD_PRG[] = {
 	0xA9, 0x69, 0x18, 0x69, 0x42, 0x8D, 0x00, 0x00,
