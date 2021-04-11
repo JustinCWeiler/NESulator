@@ -2,8 +2,8 @@ BIN = main
 TEST = test_cpu_basic
 BUILD_DIR = build
 
-CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Wno-error=unused-parameter -Werror -Og -Iinclude
+CC = clang
+CFLAGS = -std=c99 -Wall -Wextra -Wno-error=unused-parameter -Wno-error=unused-variable -Werror -Og -Iinclude
 LDFLAGS = 
 LDLIBS = -lSDL2
 
