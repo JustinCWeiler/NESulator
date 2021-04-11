@@ -1,19 +1,14 @@
 #ifndef BUS_H
 #define BUS_H
 
+#include "mappers.h"
 #include <stdint.h>
 
-typedef uint8_t(*read_func)(uint16_t, void*);
-typedef void (*write_func)(uint16_t, uint8_t, void*);
-
 typedef struct {
-	read_func read;
-	write_func write;
-	void* mmap;
+	mapper_t* mapper;
 } bus_t;
 
-bus_t* bus_create(read_func read, write_func write, void* mmap);
-uint8_t bus_read(bus_t* bus, uint16_t addr);
-void bus_write(bus_t* bus, uint16_t addr, uint8_t val);
+uint8_t bus_read(mapper_t* mapper, uint16_t addr);
+void bus_write(mapper_t* mapper, uint16_t addr, uint8_t val);
 
 #endif
