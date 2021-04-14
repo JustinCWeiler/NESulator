@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_DONE 0x01
+#define NUM_DONE 0x00
 
 // time for big code
 #include "mappers_00.c"
@@ -37,6 +37,9 @@ bus_t* bus_create_simple(read_func read, write_func write) {
 	return bus;
 }
 
+// need to pass flags here
+// then propagate to create_func
+// "shouldnt be too bad"TM
 bus_t* bus_create(uint8_t num, void* prg_rom, uint8_t prg_size,
                   void* chr_rom, uint8_t chr_size) {
 	if (num >= NUM_DONE) {
