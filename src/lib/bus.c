@@ -1,12 +1,15 @@
 #include "bus.h"
+#include "flags.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #define NUM_DONE 0x00
 
-// time for big code
-#include "mappers_00.c"
+// each mapper file contains 8 definitions,
+// meaning the maximum file number should be 0x20
+// in reality i'll probably stop before getting there though
+#include "mappers/00.c"
 
 typedef void (*create_func)(bus_t*);
 typedef uint8_t (*read_func)(bus_t*, uint16_t);
@@ -37,27 +40,35 @@ bus_t* bus_create_simple(read_func read, write_func write) {
 	return bus;
 }
 
-// need to pass flags here
-// then propagate to create_func
-// "shouldnt be too bad"TM
-bus_t* bus_create(uint8_t num, void* prg_rom, uint8_t prg_size,
-                  void* chr_rom, uint8_t chr_size) {
+bus_t* bus_create(flags_t flags, void* prg_rom, void* chr_rom) {
+	uint8_t num = (flags.map_hi << 4) | flags.map_lo;
+
 	if (num >= NUM_DONE) {
 		printf("Sorry, this game isn't supported yet\n");
 		return NULL;
 	}
 
-	bus_t* bus = malloc(sizeof(bus_t));
+	bus_t* bus = malloc(sizes[num]);
 
 	bus->read = read_funcs[num];
 	bus->write = write_funcs[num];
 
 	bus->prg_rom = prg_rom;
-	bus->prg_size = prg_size;
 	bus->chr_rom = chr_rom;
-	bus->chr_size = chr_size;
+
+	bus->flags = flags;
+
+	bus->cpu_mem = malloc(0x10000);
 
 	create_funcs[num](bus);
 
 	return bus;
+}
+
+uint16_t addr_wrap(uint16_t addr) {
+	if (addr < 0x2000)
+		return (addr % 0x800) + 0;
+	if (0x2000 <= addr && addr < 0x4000)
+		return (addr % 0x8) + 0x2000;
+	return addr;
 }
