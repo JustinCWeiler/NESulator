@@ -1,5 +1,6 @@
 BIN = main
-TEST = test_cpu_basic
+#TEST = test_cpu_basic
+TEST = test_load_rom
 BUILD_DIR = build
 
 CC = clang
