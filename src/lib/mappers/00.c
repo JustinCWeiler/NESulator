@@ -1,5 +1,6 @@
 #include "bus.h"
-#include <stdlib.h>
+
+// ---------- MAPPER 0x00 ----------
 
 typedef struct {
 	bus_t bus;
@@ -35,3 +36,17 @@ void mw00(bus_t* bus, uint16_t addr, uint8_t val) {
 
 	bus->cpu_mem[addr] = val;
 }
+
+// ---------- MAPPER 0x01 ----------
+
+// ---------- MAPPER 0x02 ----------
+
+// ---------- MAPPER 0x03 ----------
+
+// ---------- MAPPER 0x04 ----------
+
+// ---------- MAPPER 0x05 ----------
+
+// ---------- MAPPER 0x06 ----------
+
+// ---------- MAPPER 0x07 ----------

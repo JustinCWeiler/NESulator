@@ -65,6 +65,9 @@ bus_t* bus_create(flags_t flags, void* prg_rom, void* chr_rom) {
 	return bus;
 }
 
+uint8_t bus_read(bus_t* bus, uint16_t addr) { return bus->read(bus, addr); }
+void bus_write(bus_t* bus, uint16_t addr, uint8_t val) { bus->write(bus, addr, val); }
+
 uint16_t addr_wrap(uint16_t addr) {
 	if (addr < 0x2000)
 		return (addr % 0x800) + 0;
