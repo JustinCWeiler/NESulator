@@ -1016,10 +1016,63 @@ static void tya(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 // Implementation of illegal opcodes
 
+static void dcp(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
+	dec(cpu, op, addr);
+	cmp(cpu, op, addr);
+}
+
+static void isc(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
+	inc(cpu, op, addr);
+	sbc(cpu, op, addr);
+}
+
 static void lax(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
 	lda(cpu, op, addr);
 	tax(cpu, op, addr);
 }
+
+static void rla(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	rol(cpu, op, addr);
+	and(cpu, op, addr);
+}
+
+static void rra(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	ror(cpu, op, addr);
+	adc(cpu, op, addr);
+}
+
+static void sax(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	(void)op;
+	(void)cpu;
+	(void)addr;
+
+	uint8_t val = cpu->reg.A & cpu->reg.X;
+	bus_write(cpu->bus, addr, val);
+}
+
+static void slo(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	asl(cpu, op, addr);
+	ora(cpu, op, addr);
+}
+
+static void sre(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	lsr(cpu, op, addr);
+	eor(cpu, op, addr);
+}
+
+// sbc
 
 static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
@@ -1028,22 +1081,22 @@ static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static inst_func inst[0x100] = {
-	brk, ora, ill, ill, nop, ora, asl, ill, php, ora, asl, ill, nop, ora, asl, ill,
-	bpl, ora, ill, ill, nop, ora, asl, ill, clc, ora, nop, ill, nop, ora, asl, ill,
-	jsr, and, ill, ill, bit, and, rol, ill, plp, and, rol, ill, bit, and, rol, ill,
-	bmi, and, ill, ill, nop, and, rol, ill, sec, and, nop, ill, nop, and, rol, ill,
-	rti, eor, ill, ill, nop, eor, lsr, ill, pha, eor, lsr, ill, jmp, eor, lsr, ill,
-	bvc, eor, ill, ill, nop, eor, lsr, ill, cli, eor, nop, ill, nop, eor, lsr, ill,
-	rts, adc, ill, ill, nop, adc, ror, ill, pla, adc, ror, ill, jmp, adc, ror, ill,
-	bvs, adc, ill, ill, nop, adc, ror, ill, sei, adc, nop, ill, nop, adc, ror, ill,
-	nop, sta, nop, ill, sty, sta, stx, ill, dey, ill, txa, ill, sty, sta, stx, ill,
-	bcc, sta, ill, ill, sty, sta, stx, ill, tya, sta, txs, ill, ill, sta, ill, ill,
-	ldy, lda, ldx, lax, ldy, lda, ldx, ill, tay, lda, tax, ill, ldy, lda, ldx, ill,
-	bcs, lda, ill, ill, ldy, lda, ldx, ill, clv, lda, tsx, ill, ldy, lda, ldx, ill,
-	cpy, cmp, nop, ill, cpy, cmp, dec, ill, iny, cmp, dex, ill, cpy, cmp, dec, ill,
-	bne, cmp, ill, ill, nop, cmp, dec, ill, cld, cmp, nop, ill, nop, cmp, dec, ill,
-	cpx, sbc, nop, ill, cpx, sbc, inc, ill, inx, sbc, nop, ill, cpx, sbc, inc, ill,
-	beq, sbc, ill, ill, nop, sbc, inc, ill, sed, sbc, nop, ill, nop, sbc, inc, ill
+	brk, ora, ill, slo, nop, ora, asl, slo, php, ora, asl, ill, nop, ora, asl, slo,
+	bpl, ora, ill, slo, nop, ora, asl, slo, clc, ora, nop, slo, nop, ora, asl, slo,
+	jsr, and, ill, rla, bit, and, rol, rla, plp, and, rol, ill, bit, and, rol, rla,
+	bmi, and, ill, rla, nop, and, rol, rla, sec, and, nop, rla, nop, and, rol, rla,
+	rti, eor, ill, sre, nop, eor, lsr, sre, pha, eor, lsr, ill, jmp, eor, lsr, sre,
+	bvc, eor, ill, sre, nop, eor, lsr, sre, cli, eor, nop, sre, nop, eor, lsr, sre,
+	rts, adc, ill, rra, nop, adc, ror, rra, pla, adc, ror, ill, jmp, adc, ror, rra,
+	bvs, adc, ill, rra, nop, adc, ror, rra, sei, adc, nop, rra, nop, adc, ror, rra,
+	nop, sta, nop, sax, sty, sta, stx, sax, dey, ill, txa, ill, sty, sta, stx, sax,
+	bcc, sta, ill, ill, sty, sta, stx, sax, tya, sta, txs, ill, ill, sta, ill, ill,
+	ldy, lda, ldx, lax, ldy, lda, ldx, lax, tay, lda, tax, lax, ldy, lda, ldx, lax,
+	bcs, lda, ill, lax, ldy, lda, ldx, lax, clv, lda, tsx, ill, ldy, lda, ldx, lax,
+	cpy, cmp, nop, dcp, cpy, cmp, dec, dcp, iny, cmp, dex, ill, cpy, cmp, dec, dcp,
+	bne, cmp, ill, dcp, nop, cmp, dec, dcp, cld, cmp, nop, dcp, nop, cmp, dec, dcp,
+	cpx, sbc, nop, isc, cpx, sbc, inc, isc, inx, sbc, nop, sbc, cpx, sbc, inc, isc,
+	beq, sbc, ill, isc, nop, sbc, inc, isc, sed, sbc, nop, isc, nop, sbc, inc, isc
 };
 
 

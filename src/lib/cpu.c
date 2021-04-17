@@ -18,7 +18,7 @@ void cpu_reset(cpu_t* cpu) {
 	cpu->reg.A = 0;
 	cpu->reg.X = 0;
 	cpu->reg.Y = 0;
-	cpu->reg.P = 0x34;
+	cpu->reg.P = 0x24;
 	cpu->reg.S = 0xfd;
 
 	uint8_t lo = bus_read(cpu->bus, RESET_VECTOR_LO);
