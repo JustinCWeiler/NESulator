@@ -26,11 +26,19 @@ static uint16_t zpy(cpu_t* cpu) {
 }
 
 static uint16_t izx(cpu_t* cpu) {
-	return bus_read(cpu->bus, zpx(cpu));
+	uint8_t zp = zpx(cpu);
+	uint8_t addr_lo = bus_read(cpu->bus, zp);
+	uint8_t addr_hi = bus_read(cpu->bus, (zp + 1) % 0x100);
+
+	return (addr_hi << 8) | addr_lo;
 }
 
 static uint16_t izy(cpu_t* cpu) {
-	uint16_t addr0 = bus_read(cpu->bus, zpp(cpu));
+	uint8_t zp = zpp(cpu);
+	uint8_t addr_lo = bus_read(cpu->bus, zp);
+	uint8_t addr_hi = bus_read(cpu->bus, (zp + 1) % 0x100);
+
+	uint16_t addr0 = (addr_hi << 8) | addr_lo;
 	uint16_t addr1 = addr0 + cpu->reg.Y;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
@@ -67,7 +75,14 @@ static uint16_t aby(cpu_t* cpu) {
 }
 
 static uint16_t ind(cpu_t* cpu) {
-	return bus_read(cpu->bus, abb(cpu));
+	uint16_t ab0 = abb(cpu);
+	uint16_t ab1 = ab0 + 1;
+	if (!(ab1 & 0xff))
+		ab1 -= 0x100;
+	uint8_t addr_lo = bus_read(cpu->bus, ab0);
+	uint8_t addr_hi = bus_read(cpu->bus, ab1);
+
+	return (addr_hi << 8) | addr_lo;
 }
 
 static uint16_t rel(cpu_t* cpu) {
@@ -101,8 +116,8 @@ static inline void push(cpu_t* cpu, uint8_t val) {
 	bus_write(cpu->bus, STACK_OFFSET + (cpu->reg.S--), val);
 }
 
-#define POP() pop(cpu)
-static inline uint8_t pop(cpu_t* cpu) {
+#define PULL() pull(cpu)
+static inline uint8_t pull(cpu_t* cpu) {
 	return bus_read(cpu->bus, STACK_OFFSET + (++cpu->reg.S));
 }
 
@@ -526,7 +541,7 @@ static void inx(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->reg.X--;
+	cpu->reg.X++;
 
 	// N, Z
 	clr_neg(cpu);
@@ -543,7 +558,7 @@ static void iny(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->reg.Y--;
+	cpu->reg.Y++;
 
 	// N, Z
 	clr_neg(cpu);
@@ -568,8 +583,8 @@ static void jsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t pc_hi = cpu->reg.PC >> 8;
-	uint8_t pc_lo = cpu->reg.PC & 0xff;
+	uint8_t pc_hi = (cpu->reg.PC - 1) >> 8;
+	uint8_t pc_lo = (cpu->reg.PC - 1) & 0xff;
 
 	PUSH(pc_hi);
 	PUSH(pc_lo);
@@ -712,7 +727,7 @@ static void pla(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t val = POP();
+	uint8_t val = PULL();
 
 	// N, Z
 	clr_neg(cpu);
@@ -731,7 +746,7 @@ static void plp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->reg.P = POP();
+	cpu->reg.P = PULL();
 }
 
 static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -801,9 +816,9 @@ static void rti(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->reg.P = POP();
-	uint8_t pc_lo = POP();
-	uint8_t pc_hi = POP();
+	cpu->reg.P = PULL();
+	uint8_t pc_lo = PULL();
+	uint8_t pc_hi = PULL();
 
 	cpu->reg.PC = (pc_hi << 8) | pc_lo;
 }
@@ -813,10 +828,10 @@ static void rts(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	uint8_t pc_lo = POP();
-	uint8_t pc_hi = POP();
+	uint8_t pc_lo = PULL();
+	uint8_t pc_hi = PULL();
 
-	cpu->reg.PC = (pc_hi << 8) | pc_lo;
+	cpu->reg.PC = ((pc_hi << 8) | pc_lo) + 1;
 }
 
 static void sbc(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -977,15 +992,6 @@ static void txs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 
 	uint8_t val = cpu->reg.X;
 
-	// N, Z
-	clr_neg(cpu);
-	clr_zer(cpu);
-
-	if (val & 0x80)
-		set_neg(cpu);
-	if (!val)
-		set_zer(cpu);
-
 	cpu->reg.S = val;
 }
 
@@ -1008,6 +1014,13 @@ static void tya(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	cpu->reg.A = val;
 }
 
+// Implementation of illegal opcodes
+
+static void lax(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	lda(cpu, op, addr);
+	tax(cpu, op, addr);
+}
+
 static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)op;
 	(void)cpu;
@@ -1025,7 +1038,7 @@ static inst_func inst[0x100] = {
 	bvs, adc, ill, ill, nop, adc, ror, ill, sei, adc, nop, ill, nop, adc, ror, ill,
 	nop, sta, nop, ill, sty, sta, stx, ill, dey, ill, txa, ill, sty, sta, stx, ill,
 	bcc, sta, ill, ill, sty, sta, stx, ill, tya, sta, txs, ill, ill, sta, ill, ill,
-	ldy, lda, ldx, ill, ldy, lda, ldx, ill, tay, lda, tax, ill, ldy, lda, ldx, ill,
+	ldy, lda, ldx, lax, ldy, lda, ldx, ill, tay, lda, tax, ill, ldy, lda, ldx, ill,
 	bcs, lda, ill, ill, ldy, lda, ldx, ill, clv, lda, tsx, ill, ldy, lda, ldx, ill,
 	cpy, cmp, nop, ill, cpy, cmp, dec, ill, iny, cmp, dex, ill, cpy, cmp, dec, ill,
 	bne, cmp, ill, ill, nop, cmp, dec, ill, cld, cmp, nop, ill, nop, cmp, dec, ill,

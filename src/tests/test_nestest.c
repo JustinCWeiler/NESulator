@@ -14,7 +14,7 @@ int main(void) {
 	for (size_t i = 0; i < max; i++) {
 		if (cpu->reg.PC != pc[i]) {
 			printf("ERROR:\nCPU pc: 0x%04X\nActual pc: 0x%04X\n", cpu->reg.PC, pc[i]);
-			break;
+			return -1;
 		}
 		cpu_execute(cpu);
 	}
