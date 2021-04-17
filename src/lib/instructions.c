@@ -569,7 +569,7 @@ static void jsr(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)addr;
 
 	uint8_t pc_hi = cpu->reg.PC >> 8;
-	uint8_t pc_lo = cpu->reg.PC & 0xf;
+	uint8_t pc_lo = cpu->reg.PC & 0xff;
 
 	PUSH(pc_hi);
 	PUSH(pc_lo);

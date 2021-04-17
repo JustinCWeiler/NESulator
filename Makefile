@@ -1,12 +1,18 @@
 BIN = main
 #TEST = test_cpu_basic
-TEST = test_load_rom
+#TEST = test_load_rom
+TEST = test_nestest
 BUILD_DIR = build
 
-CC = clang
-CFLAGS = -std=c99 -Wall -Wextra -Wno-error=unused-parameter -Wno-error=unused-variable -Werror -Og -Iinclude
+CC = gcc
+CFLAGS = -std=c99 -Og -g -Iinclude
 LDFLAGS = 
 LDLIBS = -lSDL2
+
+WARNINGS = -Wall -Wextra -Werror
+WARNINGS_EXC = -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-result 
+CFLAGS += $(WARNINGS)
+CFLAGS += $(WARNINGS_EXC)
 
 # automatic object bois
 # space separated list of $(BUILD_DIR)/%.o for each %.c in src/lib

@@ -38,6 +38,7 @@ typedef struct {
 
 cpu_t* cpu_create(bus_t* bus);
 void cpu_reset(cpu_t* cpu);
+uint8_t cpu_execute(cpu_t* cpu);
 void cpu_pulse(cpu_t* cpu);
 void cpu_print_state(cpu_t* cpu);
 
