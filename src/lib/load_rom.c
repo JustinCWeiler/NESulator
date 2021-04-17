@@ -1,8 +1,7 @@
 #include "load_rom.h"
-#include "flags.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 bus_t* load_rom(const char* filename) {
 	FILE* f = fopen(filename, "r");

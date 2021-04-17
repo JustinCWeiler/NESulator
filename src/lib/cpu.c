@@ -1,8 +1,8 @@
 #include "cpu.h"
 #include "instructions.h"
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 cpu_t* cpu_create(bus_t* bus) {
 	cpu_t* cpu = malloc(sizeof(cpu_t));

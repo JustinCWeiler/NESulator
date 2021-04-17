@@ -1,5 +1,4 @@
 #include "bus.h"
-#include "flags.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
