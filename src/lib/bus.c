@@ -40,7 +40,7 @@ bus_t* bus_create_simple(read_func read, write_func write) {
 	return bus;
 }
 
-bus_t* bus_create(flags_t flags, void* prg_rom, void* chr_rom) {
+bus_t* bus_create(flags_t flags, char* prg_rom, char* chr_rom) {
 	uint8_t mapper = (flags.map_hi << 4) | flags.map_lo;
 
 	if (mapper >= NUM_DONE) {

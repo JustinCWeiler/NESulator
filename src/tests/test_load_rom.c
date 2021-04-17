@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "nestest_snippets.c"
+
 static unsigned int failed = 0;
 
 void test_flags(bus_t* bus) {
@@ -54,23 +56,47 @@ void test_flags(bus_t* bus) {
 }
 
 void test_begin_prg(bus_t* bus) {
-	printf("test_begin_prg\n");
-	failed++;
+	for (int i = 0; i < CHUNK; i++) {
+		if (bus->prg_rom[i] != prg_begin[i]) {
+			printf("test_begin_prg\n");
+			failed++;
+			return;
+		}
+	}
 }
 
+#define PRG_END_START (0x4000-CHUNK)
+
 void test_end_prg(bus_t* bus) {
-	printf("test_end_prg\n");
-	failed++;
+	for (int i = 0; i < CHUNK; i++) {
+		if (bus->prg_rom[i + PRG_END_START] != prg_end[i]) {
+			printf("test_end_prg\n");
+			failed++;
+			return;
+		}
+	}
 }
 
 void test_begin_chr(bus_t* bus) {
-	printf("test_begin_chr\n");
-	failed++;
+	for (int i = 0; i < CHUNK; i++) {
+		if (bus->chr_rom[i] != chr_begin[i]) {
+			printf("test_begin_chr\n");
+			failed++;
+			return;
+		}
+	}
 }
 
+#define CHR_END_START (0x2000-CHUNK)
+
 void test_end_chr(bus_t* bus) {
-	printf("test_end_chr\n");
-	failed++;
+	for (int i = 0; i < CHUNK; i++) {
+		if (bus->chr_rom[i + CHR_END_START] != chr_end[i]) {
+			printf("test_end_chr\n");
+			failed++;
+			return;
+		}
+	}
 }
 
 int main(void) {

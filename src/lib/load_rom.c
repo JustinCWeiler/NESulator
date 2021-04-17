@@ -25,8 +25,12 @@ bus_t* load_rom(const char* filename) {
 
 	fread(&flags, 4, 1, f);
 
-	void* prg_rom = malloc(PRG_CHUNK * flags.prg_size);
-	void* chr_rom = malloc(CHR_CHUNK * flags.chr_size);
+	char* prg_rom = malloc(PRG_CHUNK * flags.prg_size);
+	char* chr_rom = malloc(CHR_CHUNK * flags.chr_size);
+	if (prg_rom == NULL || chr_rom == NULL) {
+		printf("Critical error\n");
+		exit(-1);
+	}
 
 	fseek(f, 16, SEEK_SET);
 	fread(prg_rom, PRG_CHUNK, flags.prg_size, f);

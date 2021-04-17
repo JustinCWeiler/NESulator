@@ -11,8 +11,8 @@ typedef struct bus {
 	uint8_t (*read)(struct bus*, uint16_t);
 	void (*write)(struct bus*, uint16_t, uint8_t);
 
-	void* prg_rom;
-	void* chr_rom;
+	char* prg_rom;
+	char* chr_rom;
 
 	flags_t flags;
 
@@ -22,7 +22,7 @@ typedef struct bus {
 bus_t* bus_create_simple(uint8_t (*read)(bus_t*, uint16_t),
                          void (*write)(bus_t*, uint16_t, uint8_t));
 
-bus_t* bus_create(flags_t flags, void* prg_rom, void* chr_rom);
+bus_t* bus_create(flags_t flags, char* prg_rom, char* chr_rom);
 
 uint8_t bus_read(bus_t* bus, uint16_t addr);
 void bus_write(bus_t* bus, uint16_t addr, uint8_t val);
