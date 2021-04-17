@@ -7,7 +7,7 @@
 bus_t* load_rom(const char* filename) {
 	FILE* f = fopen(filename, "r");
 	if (f == NULL) {
-		perror("Error: file not found\n");
+		printf("Error: file not found\n");
 		exit(-1);
 	}
 
@@ -17,7 +17,7 @@ bus_t* load_rom(const char* filename) {
 	    magic[1] != 'E' ||
 	    magic[2] != 'S' ||
 	    magic[3] != 0x1a)  {
-		perror("Error: file is not a valid NES ROM\n");
+		printf("Error: file is not a valid NES ROM\n");
 		exit(-1);
 	}
 

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_DONE 0x00
+#define NUM_DONE 0x01
 
 // each mapper file contains 8 definitions,
 // meaning the maximum file number should be 0x20
@@ -41,17 +41,18 @@ bus_t* bus_create_simple(read_func read, write_func write) {
 }
 
 bus_t* bus_create(flags_t flags, void* prg_rom, void* chr_rom) {
-	uint8_t num = (flags.map_hi << 4) | flags.map_lo;
+	uint8_t mapper = (flags.map_hi << 4) | flags.map_lo;
 
-	if (num >= NUM_DONE) {
+	if (mapper >= NUM_DONE) {
 		printf("Sorry, this game isn't supported yet\n");
+		printf("Debug info: Mapper %u\n", mapper);
 		return NULL;
 	}
 
-	bus_t* bus = malloc(sizes[num]);
+	bus_t* bus = malloc(sizes[mapper]);
 
-	bus->read = read_funcs[num];
-	bus->write = write_funcs[num];
+	bus->read = read_funcs[mapper];
+	bus->write = write_funcs[mapper];
 
 	bus->prg_rom = prg_rom;
 	bus->chr_rom = chr_rom;
@@ -60,7 +61,7 @@ bus_t* bus_create(flags_t flags, void* prg_rom, void* chr_rom) {
 
 	bus->cpu_mem = malloc(0x10000);
 
-	create_funcs[num](bus);
+	create_funcs[mapper](bus);
 
 	return bus;
 }
