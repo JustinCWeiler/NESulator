@@ -48,5 +48,13 @@ int main(void) {
 
 	printf("Ending execution\n");
 
+	printf("Testing memory values\n");
+
+	uint8_t val;
+	if ((val = bus_read(cpu->bus, 0x02)) != 0)
+		printf("In byte 0x02 we have 0x%02X\n", val);
+	if ((val = bus_read(cpu->bus, 0x03)) != 0)
+		printf("In byte 0x03 we have 0x%02X\n", val);
+
 	return 0;
 }
