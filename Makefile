@@ -1,7 +1,8 @@
 BIN = main
 #TEST = test_cpu_basic
 #TEST = test_load_rom
-TEST = test_nestest
+#TEST = test_nestest
+TEST = test_nestest_clock
 BUILD_DIR = build
 
 CC = gcc

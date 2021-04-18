@@ -41,7 +41,7 @@ uint8_t cpu_execute(cpu_t* cpu) {
 void cpu_pulse(cpu_t* cpu) {
 	if (cpu->cycles_left == 0) {
 		uint8_t opcode = cpu_execute(cpu);
-		cpu->cycles_left = get_base_cycles(opcode);
+		cpu->cycles_left += get_base_cycles(opcode);
 	}
 	cpu->cycles_left--;
 }
