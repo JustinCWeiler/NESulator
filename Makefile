@@ -2,7 +2,8 @@ BIN = main
 #TEST = test_cpu_basic
 #TEST = test_load_rom
 #TEST = test_nestest
-TEST = test_nestest_clock
+#TEST = test_nestest_clock
+TEST = test_nestest_time
 BUILD_DIR = build
 
 CC = gcc
@@ -11,7 +12,7 @@ LDFLAGS =
 LDLIBS = -lSDL2
 
 WARNINGS = -Wall -Wextra -Werror
-WARNINGS_EXC = -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-result 
+WARNINGS_EXC = -Wno-unused-parameter -Wno-error=unused-variable -Wno-error=unused-result 
 CFLAGS += $(WARNINGS)
 CFLAGS += $(WARNINGS_EXC)
 

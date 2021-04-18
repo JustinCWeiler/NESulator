@@ -7,3 +7,4 @@
 #include "nestest_values/nestest_clock.c"
 
 #define MAX (sizeof(pc)/sizeof(uint16_t))
+#define FINAL 0xC66E

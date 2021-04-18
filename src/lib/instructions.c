@@ -3,6 +3,8 @@
 #include "bus.h"
 #include <stdint.h>
 
+static uint8_t plus_one = 0;
+
 // ---------- ADDRESSING MODES ----------
 static uint16_t imp(cpu_t* cpu) {
 	(void)cpu;
@@ -42,7 +44,7 @@ static uint16_t izy(cpu_t* cpu) {
 	uint16_t addr1 = addr0 + cpu->reg.Y;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
-		cpu->cycles_left++;
+		plus_one = 1;
 
 	return addr1;
 }
@@ -59,7 +61,7 @@ static uint16_t abx(cpu_t* cpu) {
 	uint16_t addr1 = addr0 + cpu->reg.X;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
-		cpu->cycles_left++;
+		plus_one = 1;
 
 	return addr1;
 }
@@ -69,7 +71,7 @@ static uint16_t aby(cpu_t* cpu) {
 	uint16_t addr1 = addr0 + cpu->reg.Y;
 
 	if ((addr0 & 0xff00) != (addr1 & 0xff00))
-		cpu->cycles_left++;
+		plus_one = 1;
 
 	return addr1;
 }
@@ -207,7 +209,10 @@ static void bcc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_car(cpu) == 0) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -220,7 +225,10 @@ static void bcs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_car(cpu) == 1) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -233,7 +241,10 @@ static void beq(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_zer(cpu) == 1) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -266,7 +277,10 @@ static void bmi(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_neg(cpu) == 1) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -279,7 +293,10 @@ static void bne(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_zer(cpu) == 0) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -292,7 +309,10 @@ static void bpl(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_neg(cpu) == 0) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -328,7 +348,10 @@ static void bvc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_ovf(cpu) == 0) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -341,7 +364,10 @@ static void bvs(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	if (get_ovf(cpu) == 1) {
 		// must be signed
 		int8_t val = bus_read(cpu->bus, addr);
+		uint16_t old = cpu->reg.PC;
 		cpu->reg.PC += val;
+		if ((old & 0xff00) != (cpu->reg.PC & 0xff00))
+			cpu->cycles_left++;
 		cpu->cycles_left++;
 	}
 }
@@ -1036,10 +1062,6 @@ static void isc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static void lax(cpu_t* cpu, uint8_t op, uint16_t addr) {
-	(void)op;
-	(void)cpu;
-	(void)addr;
-
 	lda(cpu, op, addr);
 	tax(cpu, op, addr);
 }
@@ -1055,10 +1077,6 @@ static void rra(cpu_t* cpu, uint8_t op, uint16_t addr) {
 }
 
 static void sax(cpu_t* cpu, uint8_t op, uint16_t addr) {
-	(void)op;
-	(void)cpu;
-	(void)addr;
-
 	uint8_t val = cpu->reg.A & cpu->reg.X;
 	bus_write(cpu->bus, addr, val);
 }
@@ -1073,13 +1091,7 @@ static void sre(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	eor(cpu, op, addr);
 }
 
-// sbc
-
-static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {
-	(void)op;
-	(void)cpu;
-	(void)addr;
-}
+static void ill(cpu_t* cpu, uint8_t op, uint16_t addr) {}
 
 static inst_func inst[0x100] = {
 	brk, ora, ill, slo, nop, ora, asl, slo, php, ora, asl, ill, nop, ora, asl, slo,
@@ -1121,9 +1133,36 @@ static uint8_t cycles[0x100] = {
 	2, 5, 1, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7
 };
 
+static uint8_t plus_ones[0x100] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0
+};
+
 
 // ---------- FUNCTIONS ----------
 uint16_t get_addr(cpu_t* cpu, uint8_t op) { return addrs[op](cpu); }
-void execute_instruction(cpu_t* cpu, uint8_t op, uint16_t addr) { return inst[op](cpu, op, addr); }
+
+void execute_instruction(cpu_t* cpu, uint8_t op, uint16_t addr) {
+	if (plus_one)
+		cpu->cycles_left += plus_ones[op];
+
+	plus_one = 0;
+
+	return inst[op](cpu, op, addr);
+}
 
 uint8_t get_base_cycles(uint8_t op) { return cycles[op]; }
