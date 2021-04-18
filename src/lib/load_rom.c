@@ -11,7 +11,11 @@ bus_t* load_rom(const char* filename) {
 	}
 
 	char magic[4];
-	fread(magic, 4, 1, f);
+	size_t ret = fread(magic, 4, 1, f);
+	if (ret != 1) {
+		printf("Error reading magic bytes of ROM file\n");
+		exit(-1);
+	}
 	if (magic[0] != 'N' ||
 	    magic[1] != 'E' ||
 	    magic[2] != 'S' ||
@@ -22,7 +26,11 @@ bus_t* load_rom(const char* filename) {
 
 	flags_t flags;
 
-	fread(&flags, 4, 1, f);
+	ret = fread(&flags, 4, 1, f);
+	if (ret != 1) {
+		printf("Error reading flags of ROM file\n");
+		exit(-1);
+	}
 
 	char* prg_rom = malloc(PRG_CHUNK * flags.prg_size);
 	char* chr_rom = malloc(CHR_CHUNK * flags.chr_size);
@@ -32,8 +40,16 @@ bus_t* load_rom(const char* filename) {
 	}
 
 	fseek(f, 16, SEEK_SET);
-	fread(prg_rom, PRG_CHUNK, flags.prg_size, f);
-	fread(chr_rom, CHR_CHUNK, flags.chr_size, f);
+	ret = fread(prg_rom, PRG_CHUNK, flags.prg_size, f);
+	if (ret != flags.prg_size) {
+		printf("Error reading PRG data in ROM file\n");
+		exit(-1);
+	}
+	ret = fread(chr_rom, CHR_CHUNK, flags.chr_size, f);
+	if (ret != flags.chr_size) {
+		printf("Error reading PRG data in ROM file\n");
+		exit(-1);
+	}
 
 	return bus_create(flags, prg_rom, chr_rom);
 }
