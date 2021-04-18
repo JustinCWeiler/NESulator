@@ -308,10 +308,9 @@ static void brk(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	// push values to stack
 	PUSH(pc_hi);
 	PUSH(pc_lo);
-	PUSH(cpu->reg.P);
+	PUSH(cpu->reg.P | 0b00110000);
 
 	// set flags
-	set_brk(cpu);
 	set_ida(cpu);
 
 	// change PC
@@ -719,7 +718,7 @@ static void php(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	PUSH(cpu->reg.P);
+	PUSH(cpu->reg.P | 0b00110000);
 }
 
 static void pla(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -746,7 +745,8 @@ static void plp(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->reg.P = PULL();
+	cpu->reg.P &= (0b00110000);
+	cpu->reg.P |= PULL() & ~(0b00110000);
 }
 
 static void rol(cpu_t* cpu, uint8_t op, uint16_t addr) {
@@ -816,7 +816,8 @@ static void rti(cpu_t* cpu, uint8_t op, uint16_t addr) {
 	(void)cpu;
 	(void)addr;
 
-	cpu->reg.P = PULL();
+	cpu->reg.P &= (0b00110000);
+	cpu->reg.P |= PULL() & ~(0b00110000);
 	uint8_t pc_lo = PULL();
 	uint8_t pc_hi = PULL();
 
@@ -855,7 +856,7 @@ static void sbc(cpu_t* cpu, uint8_t op, uint16_t addr) {
 		set_ovf(cpu);
 	if (!newA)
 		set_zer(cpu);
-	if (newA < oldA)
+	if (newA <= oldA)
 		set_car(cpu);
 
 	cpu->reg.A = newA;
