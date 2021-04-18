@@ -36,6 +36,8 @@ uint8_t mr00(bus_t* bus, uint16_t addr) {
 }
 
 void mw00(bus_t* bus, uint16_t addr, uint8_t val) {
+	if (0x4020 <= addr)
+		return;
 	*ma00(bus, addr) = val;
 }
 
